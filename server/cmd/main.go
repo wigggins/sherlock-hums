@@ -11,22 +11,22 @@ import (
 )
 
 func main() {
-	// Initialize database connection (see db.go for details)
+	// initialize database connection (see db.go for details)
 	err := store.InitDB(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal("Error connecting to database:", err)
 	}
 	defer store.CloseDB()
 
-	// Set up router using gorilla/mux
 	r := mux.NewRouter()
 
-	// Session and User Endpoints
+	// session and user Endpoints
 	r.HandleFunc("/session", handlers.CreateSessionHandler).Methods("POST")
 	r.HandleFunc("/session/join", handlers.JoinSessionHandler).Methods("POST")
 	r.HandleFunc("/session/{sessionID}/songs", handlers.SubmitSongsHandler).Methods("POST")
 
-	// Additional endpoints (for song submission, etc.) would be added here
+	// game round management
+	r.HandleFunc("/session/{sessionID}/start", handlers.StartGameHandler).Methods("POST")
 
 	log.Println("Server running on port 8080")
 	http.ListenAndServe(":8080", r)
