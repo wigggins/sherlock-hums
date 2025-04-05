@@ -8,7 +8,7 @@ RUN go mod download
 
 # Copy the rest of the code and build the binary statically
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o app .
+RUN CGO_ENABLED=0 GOOS=linux go build -o app ./cmd
 
 # Final stage using Alpine
 FROM alpine:latest

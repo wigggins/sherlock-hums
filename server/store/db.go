@@ -1,4 +1,4 @@
-package main
+package store
 
 import (
 	"database/sql"
@@ -6,17 +6,18 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func initDB(databaseURL string) error {
+var db *sql.DB
+
+func InitDB(databaseURL string) error {
 	var err error
 	db, err = sql.Open("postgres", databaseURL)
 	if err != nil {
 		return err
 	}
-	// Optionally, verify connection with db.Ping()
 	return db.Ping()
 }
 
-func closeDB() {
+func CloseDB() {
 	if db != nil {
 		db.Close()
 	}
