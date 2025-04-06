@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/wigggins/sherlock-hums/server/store"
@@ -35,6 +36,39 @@ func StartGameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := StartGameResponse{Message: "Game rounds created and session state updated to GUESSING successfully"}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+type RoundCompleteResponse struct {
+	Message string `json:"message"`
+}
+
+// CompleteRoundHandler finalizes a round by calculating scores and marking it as played
+func CompleteRoundHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	sessionID := vars["sessionID"]
+	roundIDStr := vars["roundID"]
+
+	if sessionID == "" || roundIDStr == "" {
+		http.Error(w, "Session ID and Round ID are required", http.StatusBadRequest)
+		return
+	}
+
+	roundID, err := strconv.Atoi(roundIDStr)
+	if err != nil {
+		http.Error(w, "Invalid Round ID", http.StatusBadRequest)
+		return
+	}
+
+	// process round completion
+	err = store.CompleteRound(roundID)
+	if err != nil {
+		http.Error(w, "Error completing round: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := RoundCompleteResponse{Message: "Round completed and scores updated successfully"}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }

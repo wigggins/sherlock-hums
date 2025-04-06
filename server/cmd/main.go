@@ -27,6 +27,10 @@ func main() {
 
 	// game round management
 	r.HandleFunc("/session/{sessionID}/start", handlers.StartGameHandler).Methods("POST")
+	r.HandleFunc("/session/{sessionID}/round/{roundID}/guess", handlers.SubmitGuessHandler).Methods("POST")
+	r.HandleFunc("/session/{sessionID}/round/{roundID}/complete", handlers.CompleteRoundHandler).Methods("POST")
+
+	r.HandleFunc("/session/scores", handlers.GetScoresHandler).Methods("GET")
 
 	log.Println("Server running on port 8080")
 	http.ListenAndServe(":8080", r)
