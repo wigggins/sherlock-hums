@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/wigggins/sherlock-hums/server/store"
+	"github.com/wigggins/sherlock-hums/server/ws"
 )
 
 type CreateSessionRequest struct {
@@ -63,7 +64,6 @@ func CreateSessionHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-// joinSessionRequest represents the request to join a session
 type JoinSessionRequest struct {
 	SessionID string `json:"session_id"`
 	Username  string `json:"username"`
@@ -85,10 +85,23 @@ func JoinSessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create the user
-	if _, err := store.CreateUser(req.Username, &req.SessionID); err != nil {
+	createdUserID, err := store.CreateUser(req.Username, &req.SessionID)
+	if err != nil {
 		http.Error(w, "Error joining session", http.StatusInternalServerError)
 		return
 	}
+
+	newPlayer := struct {
+		UserID    int    `json:"user_id"`
+		Username  string `json:"username"`
+		SessionID string `json:"session_id"`
+	}{
+		UserID:    createdUserID,
+		Username:  req.Username,
+		SessionID: req.SessionID,
+	}
+
+	ws.HubInstance.Broadcast(newPlayer, "player_joined", req.SessionID)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Joined session successfully"))
