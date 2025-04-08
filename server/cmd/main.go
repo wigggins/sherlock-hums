@@ -30,6 +30,7 @@ func main() {
 	r.HandleFunc("/session", handlers.CreateSessionHandler).Methods("POST")
 	r.HandleFunc("/session/join", handlers.JoinSessionHandler).Methods("POST")
 	r.HandleFunc("/session/{sessionID}/songs", handlers.SubmitSongsHandler).Methods("POST")
+	r.HandleFunc("/session/{sessionID}/players", handlers.GetPlayersHandler).Methods("GET")
 
 	// game round management
 	r.HandleFunc("/session/{sessionID}/start", handlers.StartGameHandler).Methods("POST")

@@ -1,24 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useParams } from 'react-router';
+import { getPlayersBySession} from '../api'
+import { useLobby } from '../context/LobbyContext';
 import { useWebSocket } from '../hooks/useWebSocket';
 
 export const Lobby = () => {
+  const { sessionId } = useParams();
   const { lastMessage } = useWebSocket();
-  const [ players, setPlayers ] = useState([])
+  const { players, dispatch } = useLobby();
 
   useEffect(() => {
-    // TODO: fetch initial users with new api endpoint
+    getPlayersBySession(sessionId)
+      .then((response) => {
+        dispatch({ type: 'SET_PLAYERS', payload: response });
+      })
+      .catch((error) => {
+        console.error('Error fetching players:', error);
+      });
+  }, [sessionId, dispatch]);
+
+  useEffect(() => {
     if (lastMessage && lastMessage.event === 'player_joined') {
       const newPlayer = lastMessage.data;
-      setPlayers((prevPlayers) => [...prevPlayers, newPlayer]);
+      dispatch({ type: 'ADD_PLAYER', payload: newPlayer });
     }
-  }, [lastMessage]);
+  }, [lastMessage, dispatch]);
 
   return (
     <>
       <div>Players:</div>
-      {players.map(player => (
-        <div>{player.username}</div>
-      ))}
+        {players?.map((player) => (
+          <div key={player.user_id}>{player.username}</div>
+        ))}
     </>
   )
 }

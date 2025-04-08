@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/wigggins/sherlock-hums/server/store"
 	"github.com/wigggins/sherlock-hums/server/ws"
 )
@@ -105,4 +106,23 @@ func JoinSessionHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Joined session successfully"))
+}
+
+// GetPlayersHandler retrieves the current players for a session.
+func GetPlayersHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	sessionID := vars["sessionID"]
+	if sessionID == "" {
+		http.Error(w, "Session ID is required", http.StatusBadRequest)
+		return
+	}
+
+	players, err := store.GetPlayersBySession(sessionID)
+	if err != nil {
+		http.Error(w, "Error retrieving players: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(players)
 }

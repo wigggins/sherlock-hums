@@ -20,4 +20,9 @@ export const joinSession = async (sessionId, username) => {
   return response.data;
 };
 
+export const getPlayersBySession = async (sessionId) => {
+  const response = await api.get(`/session/${sessionId}/players`);
+  return response.data;
+};
+
 export default api;
