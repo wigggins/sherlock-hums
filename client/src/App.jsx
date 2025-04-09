@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router";
 import { WebSocketProvider } from './context/WebSocketContext';
 import { LobbyProvider } from './context/LobbyContext';
+import { SessionListener } from './components/SessionListener/SessionListener';
 import { Home } from './pages/Home';
 import { Lobby } from './pages/Lobby';
 import { SongSubmission } from './pages/SongSubmission';
@@ -17,6 +18,7 @@ function App() {
             element={
               <WebSocketProvider>
                 <LobbyProvider>
+                  <SessionListener />
                   <Outlet />
                 </LobbyProvider>
               </WebSocketProvider>

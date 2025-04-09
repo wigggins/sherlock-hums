@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router';
-import { getPlayersBySession} from '../api'
+import { getPlayersBySession, startGameSubmission} from '../api'
 import { useLobby } from '../context/LobbyContext';
+import { UserAvatar } from "../components/UserAvatar/UserAvatar";
 import { useWebSocket } from '../hooks/useWebSocket';
 
 export const Lobby = () => {
@@ -26,12 +27,22 @@ export const Lobby = () => {
     }
   }, [lastMessage, dispatch]);
 
+  const handleStartGame = async () => {
+    try {
+      await startGameSubmission(sessionId);
+    } catch (error) {
+      console.error("Error starting game:", error);
+    }
+  };
+
   return (
     <>
       <div>Players:</div>
         {players?.map((player) => (
-          <div key={player.user_id}>{player.username}</div>
+          <UserAvatar key={player.user_id} user={player}>{player.username}</UserAvatar>
         ))}
+      {/* TODO: validate button only shows for host */}
+      <button onClick={handleStartGame}>Start Game</button>
     </>
   )
 }

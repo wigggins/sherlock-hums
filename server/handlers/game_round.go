@@ -7,13 +7,39 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/wigggins/sherlock-hums/server/store"
+	"github.com/wigggins/sherlock-hums/server/ws"
 )
+
+func StartSubmissionHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	sessionID := vars["sessionID"]
+	if sessionID == "" {
+		http.Error(w, "Session ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// TODO: add additional validation, only the host can call this endpoint
+
+	if err := store.UpdateSessionState(sessionID, "SUBMISSION"); err != nil {
+		http.Error(w, "Error updating session state: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// broadcast a "game_started" message to all clients in the session
+	ws.HubInstance.Broadcast(nil, "game_started", sessionID)
+
+	resp := StartGameResponse{
+		Message: "Game started; transitioning to song submission",
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
 
 type StartGameResponse struct {
 	Message string `json:"message"`
 }
 
-func StartGameHandler(w http.ResponseWriter, r *http.Request) {
+func StartGuessingHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	sessionID, ok := vars["sessionID"]
 	if !ok || sessionID == "" {

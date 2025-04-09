@@ -25,4 +25,9 @@ export const getPlayersBySession = async (sessionId) => {
   return response.data;
 };
 
+export const startGameSubmission = async (sessionId, userId) => {
+  const response = await api.post(`/session/${sessionId}/start/submission`, { session_id: sessionId, user_id: userId });
+  return response.data;
+}
+
 export default api;
