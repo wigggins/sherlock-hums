@@ -37,6 +37,7 @@ export const Home = () => {
           <h2>Create Game</h2>
           <input
             type="text"
+            className="text-input"
             placeholder="Enter username"
             value={hostUsername}
             onChange={(e) => setHostUsername(e.target.value)}
@@ -47,12 +48,14 @@ export const Home = () => {
           <h2>Join Game</h2>
           <input
             type="text"
+            className="text-input"
             placeholder="Enter session ID"
             value={joinSessionId}
             onChange={(e) => setJoinSessionId(e.target.value)}
           />
           <input
             type="text"
+            className="text-input"
             placeholder="Enter your username"
             value={joinUsername}
             onChange={(e) => setJoinUsername(e.target.value)}

@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router';
 import { getPlayersBySession, startGameSubmission} from '../api'
-import { useLobby } from '../context/LobbyContext';
+import { usePlayers } from '../hooks/usePlayers';
 import { UserAvatar } from "../components/UserAvatar/UserAvatar";
 import { useWebSocket } from '../hooks/useWebSocket';
 
 export const Lobby = () => {
   const { sessionId } = useParams();
   const { lastMessage } = useWebSocket();
-  const { players, dispatch } = useLobby();
+  const { players, dispatch } = usePlayers();
 
   useEffect(() => {
     getPlayersBySession(sessionId)
