@@ -17,6 +17,7 @@ type CreateSessionRequest struct {
 
 type CreateSessionResponse struct {
 	SessionID string `json:"session_id"`
+	UserID    int    `json:"user_id"`
 }
 
 // generateSessionID creates a random 6-character alphanumeric string
@@ -60,7 +61,7 @@ func CreateSessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := CreateSessionResponse{SessionID: sessionID}
+	resp := CreateSessionResponse{SessionID: sessionID, UserID: hostUserID}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
@@ -68,6 +69,11 @@ func CreateSessionHandler(w http.ResponseWriter, r *http.Request) {
 type JoinSessionRequest struct {
 	SessionID string `json:"session_id"`
 	Username  string `json:"username"`
+}
+
+type JoinSessionResponse struct {
+	SessionID string `json:"session_id"`
+	UserID    int    `json:"user_id"`
 }
 
 // joinSessionHandler allows a user to join an existing session
@@ -104,8 +110,10 @@ func JoinSessionHandler(w http.ResponseWriter, r *http.Request) {
 
 	ws.HubInstance.Broadcast(newPlayer, "player_joined", req.SessionID)
 
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Joined session successfully"))
+	resp := JoinSessionResponse{SessionID: req.SessionID, UserID: createdUserID}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
 }
 
 // GetPlayersHandler retrieves the current players for a session.

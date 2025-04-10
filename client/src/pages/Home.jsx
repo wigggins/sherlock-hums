@@ -1,9 +1,11 @@
 import React, { useState } from "react"
 import { useNavigate } from 'react-router-dom';
 import { createSession, joinSession } from '../api';
+import { useUser } from "../context/UserContext";
 
 export const Home = () => {
   const navigate = useNavigate();
+  const { updateUser } = useUser();
 
   // quick state
   const [hostUsername, setHostUsername] = useState('');
@@ -15,6 +17,7 @@ export const Home = () => {
     try {
       const data = await createSession(hostUsername);
       navigate(`/session/${data.session_id}/lobby`);
+      updateUser({id: data.user_id, sessionId: data.session_id})
     } catch (error) {
       console.error('Error creating session:', error);
     }
@@ -22,8 +25,9 @@ export const Home = () => {
 
   const handleJoinSession = async () => {
     try {
-      await joinSession(joinSessionId, joinUsername);
+      const data = await joinSession(joinSessionId, joinUsername);
       navigate(`/session/${joinSessionId}/lobby`);
+      updateUser({id: data.user_id, sessionId: data.session_id})
     } catch (error) {
       console.error('Error joining session:', error);
     }

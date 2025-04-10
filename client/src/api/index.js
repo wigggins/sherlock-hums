@@ -30,4 +30,9 @@ export const startGameSubmission = async (sessionId, userId) => {
   return response.data;
 }
 
+export const songSubmission = async (sessionId, payload) => {
+  const response = await api.post(`/session/${sessionId}/songs`, payload);
+  return response.data;
+}
+
 export default api;

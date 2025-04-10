@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/wigggins/sherlock-hums/server/store"
+	"github.com/wigggins/sherlock-hums/server/ws"
 )
 
 type SongSubmissionRequest struct {
@@ -60,6 +61,17 @@ func SubmitSongsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	// broadcast a 'submission_completed' once a user submits their songs
+	newSubmission := struct {
+		UserID int    `json:"user_id"`
+		Status string `json:"status"`
+	}{
+		UserID: req.UserID,
+		Status: "submitted",
+	}
+
+	ws.HubInstance.Broadcast(newSubmission, "submission_completed", sessionID)
 
 	resp := SongSubmissionResponse{Message: "Songs submitted successfully"}
 	w.Header().Set("Content-Type", "application/json")
