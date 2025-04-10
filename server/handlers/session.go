@@ -13,6 +13,8 @@ import (
 
 type CreateSessionRequest struct {
 	HostUsername string `json:"host_username"`
+	AvatarColor  string `json:"avatar_color"`
+	AvatarType   string `json:"avatar_type"`
 }
 
 type CreateSessionResponse struct {
@@ -40,7 +42,7 @@ func CreateSessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create the host user first
-	hostUserID, err := store.CreateUser(req.HostUsername, nil) // sessionID empty at first
+	hostUserID, err := store.CreateUser(req.HostUsername, nil, req.AvatarType, req.AvatarColor) // sessionID empty at first
 	if err != nil {
 		http.Error(w, "Error creating host user", http.StatusInternalServerError)
 		return
@@ -67,8 +69,10 @@ func CreateSessionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type JoinSessionRequest struct {
-	SessionID string `json:"session_id"`
-	Username  string `json:"username"`
+	SessionID   string `json:"session_id"`
+	Username    string `json:"username"`
+	AvatarColor string `json:"avatar_color"`
+	AvatarType  string `json:"avatar_type"`
 }
 
 type JoinSessionResponse struct {
@@ -92,20 +96,22 @@ func JoinSessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create the user
-	createdUserID, err := store.CreateUser(req.Username, &req.SessionID)
+	createdUserID, err := store.CreateUser(req.Username, &req.SessionID, req.AvatarType, req.AvatarColor)
 	if err != nil {
 		http.Error(w, "Error joining session", http.StatusInternalServerError)
 		return
 	}
 
 	newPlayer := struct {
-		UserID    int    `json:"user_id"`
-		Username  string `json:"username"`
-		SessionID string `json:"session_id"`
+		UserID      int    `json:"user_id"`
+		Username    string `json:"username"`
+		SessionID   string `json:"session_id"`
+		AvatarColor string `json:"avatar_color"`
 	}{
-		UserID:    createdUserID,
-		Username:  req.Username,
-		SessionID: req.SessionID,
+		UserID:      createdUserID,
+		Username:    req.Username,
+		SessionID:   req.SessionID,
+		AvatarColor: req.AvatarColor,
 	}
 
 	ws.HubInstance.Broadcast(newPlayer, "player_joined", req.SessionID)
