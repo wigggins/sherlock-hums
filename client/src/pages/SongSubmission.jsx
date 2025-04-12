@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { usePlayers } from '../hooks/usePlayers';
-import { songSubmission } from '../api';
+import { songSubmission, startGameGuessing } from '../api';
 import { useUser } from '../context/UserContext';
+import { PlayersList } from '../components/PlayersList/PlayersList';
 
 export const SongSubmission = () => {
   const { sessionId } = useParams();
@@ -15,6 +16,7 @@ export const SongSubmission = () => {
   const [ songOne, setSongOne ] = useState('');
   const [ songTwo, setSongTwo ] = useState('');
   const [ songThree, setSongThree ] = useState('');
+  const [ hasSubmitted, setHasSubmitted ] = useState(false);
 
   useEffect(() => {
     if (lastMessage && lastMessage.event === 'submission_completed') {
@@ -38,40 +40,60 @@ export const SongSubmission = () => {
           songThree
         ]
       })
+      setHasSubmitted(true);
     } catch (err) {
       console.error('Error submitting songs:', err);
+    }
+  }
+
+  const handleGuessingStart = async () => {
+    try {
+      await startGameGuessing(sessionId, currentUser.id);
+    } catch (err) {
+      console.error('Error starting guessing: ', err)
     }
   }
 
   return (
     <>
       <h2>Song Submission Page</h2>
-      <div>
-
-      </div>
-      <div>
-        <div className="input-group">
-          <input 
-            type="text" 
-            className="text-input" 
-            value={songOne}
-            onChange={(e) => setSongOne(e.target.value)} />
+      <div className="container-split">
+        <div className="half">
+          <PlayersList players={players} />
         </div>
-        <div className="input-group">
-          <input 
-            type="text" 
-            className="text-input" 
-            value={songTwo}
-            onChange={(e) => setSongTwo(e.target.value)}  />
-        </div>
-        <div className="input-group">
-          <input 
-            type="text" 
-            className="text-input" 
-            value={songThree}
-            onChange={(e) => setSongThree(e.target.value)}  />
-        </div>
-        <button onClick={handleSongsSubmission} />
+        { hasSubmitted ? (
+          <div className="half">
+            <div>
+              Songs have been submitted!
+            </div>
+            { currentUser.isHost && <button onClick={handleGuessingStart}>Begin Game</button>}
+          </div>
+        ) : (
+          <div className="half">
+            <div className="input-group">
+              <input 
+                type="text" 
+                className="text-input" 
+                value={songOne}
+                onChange={(e) => setSongOne(e.target.value)} />
+            </div>
+            <div className="input-group">
+              <input 
+                type="text" 
+                className="text-input" 
+                value={songTwo}
+                onChange={(e) => setSongTwo(e.target.value)}  />
+            </div>
+            <div className="input-group">
+              <input 
+                type="text" 
+                className="text-input" 
+                value={songThree}
+                onChange={(e) => setSongThree(e.target.value)}  />
+            </div>
+            <button onClick={handleSongsSubmission}>Submit</button>
+          </div>
+        )}
       </div>
     </>
   )

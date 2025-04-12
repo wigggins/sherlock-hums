@@ -17,7 +17,7 @@ export const Home = () => {
     try {
       const data = await createSession(hostUsername);
       navigate(`/session/${data.session_id}/lobby`);
-      updateUser({id: data.user_id, sessionId: data.session_id})
+      updateUser({id: data.user_id, sessionId: data.session_id, isHost: true})
     } catch (error) {
       console.error('Error creating session:', error);
     }
@@ -27,7 +27,7 @@ export const Home = () => {
     try {
       const data = await joinSession(joinSessionId, joinUsername);
       navigate(`/session/${joinSessionId}/lobby`);
-      updateUser({id: data.user_id, sessionId: data.session_id})
+      updateUser({id: data.user_id, sessionId: data.session_id, isHost: false})
     } catch (error) {
       console.error('Error joining session:', error);
     }

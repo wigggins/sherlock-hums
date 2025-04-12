@@ -64,6 +64,8 @@ func StartGuessingHandler(w http.ResponseWriter, r *http.Request) {
 	resp := StartGameResponse{Message: "Game rounds created and session state updated to GUESSING successfully"}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
+
+	ws.HubInstance.Broadcast(nil, "guessing_started", sessionID)
 }
 
 type RoundCompleteResponse struct {

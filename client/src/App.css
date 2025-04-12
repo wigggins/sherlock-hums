@@ -1,10 +1,15 @@
 #root {
-  max-width: 1280px;
+  width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
 
-.card {
+.player-card {
+  width: 120px;
   padding: 2em;
+  border-radius: 6px;
+  background-color: #181818;
+  color: #FEFEFE;
+  margin: 20px;
 }

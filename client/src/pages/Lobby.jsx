@@ -37,6 +37,7 @@ export const Lobby = () => {
 
   return (
     <>
+      <div>Session ID: {sessionId}</div>
       <div>Players:</div>
         {players?.map((player) => (
           <UserAvatar key={player.user_id} user={player}>{player.username}</UserAvatar>

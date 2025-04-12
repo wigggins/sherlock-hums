@@ -37,4 +37,9 @@ export const songSubmission = async (sessionId, payload) => {
   return response.data;
 }
 
+export const startGameGuessing = async (sessionId, userId) => {
+  const response = await api.post(`/session/${sessionId}/start/guessing`, { user_id: userId });
+  return response.data;
+}
+
 export default api;

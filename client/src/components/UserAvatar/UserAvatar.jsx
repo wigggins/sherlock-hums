@@ -3,9 +3,10 @@ import { avatarColors } from '../../utils/constants'
 
 export const UserAvatar = ({user}) => {
   return (
-    <div>
+    <div className="player-card">
       <HeadphonesAvatar color={avatarColors[user.avatar_color]} height={40} width={40} />
       <div>{user.username}</div>
+      <div>{user.submitted ? 'submitted' : ''}</div>
     </div>
   )
 }

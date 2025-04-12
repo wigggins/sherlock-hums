@@ -12,6 +12,11 @@ export const SessionListener = () => {
       console.log("Game started event received; navigating to Song Submission page");
       navigate(`/session/${sessionId}/submission`);
     }
+
+    if (lastMessage && lastMessage.event === 'guessing_started') {
+      console.log("Guessing started event received; navigating to Guessing Round page");
+      navigate(`/session/${sessionId}/submission`);
+    }
   }, [lastMessage, sessionId, navigate]);
 
   return null;
