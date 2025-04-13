@@ -68,6 +68,33 @@ func StartGuessingHandler(w http.ResponseWriter, r *http.Request) {
 	ws.HubInstance.Broadcast(nil, "guessing_started", sessionID)
 }
 
+// TODO: think about 'current round' validation
+// prevent users from retrieving future rounds, etc
+func GetRoundHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	sessionID, ok := vars["sessionID"]
+	roundIDStr := vars["roundID"]
+
+	roundID, err := strconv.Atoi(roundIDStr)
+	if err != nil {
+		http.Error(w, "Invalid round ID", http.StatusBadRequest)
+		return
+	}
+
+	if !ok || sessionID == "" {
+		http.Error(w, "Session ID is required", http.StatusBadRequest)
+		return
+	}
+
+	round, err := store.GetRound(roundID, sessionID)
+	if err != nil {
+		http.Error(w, "Session ID is required", http.StatusBadRequest)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(round)
+}
+
 type RoundCompleteResponse struct {
 	Message string `json:"message"`
 }

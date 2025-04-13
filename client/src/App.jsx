@@ -7,6 +7,7 @@ import { Home } from './pages/Home';
 import { Lobby } from './pages/Lobby';
 import { SongSubmission } from './pages/SongSubmission';
 import './App.css'
+import { RoundGuess } from "./pages/RoundGuess";
 
 function App() {
   return (
@@ -19,18 +20,17 @@ function App() {
           <Route
             path="/session/:sessionId"
             element={
-              <WebSocketProvider>
-                
-                  <PlayerProvider>
-                    <SessionListener />
-                    <Outlet />
-                  </PlayerProvider>
-                
+              <WebSocketProvider> 
+                <PlayerProvider>
+                  <SessionListener />
+                  <Outlet />
+                </PlayerProvider>
               </WebSocketProvider>
             }
           >
             <Route path="lobby" element={<Lobby />} />
             <Route path="submission" element={<SongSubmission />} />
+            <Route path="round/:roundId" element={<RoundGuess />} />
           </Route>
           
         </Routes>

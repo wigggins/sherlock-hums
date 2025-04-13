@@ -42,4 +42,14 @@ export const startGameGuessing = async (sessionId, userId) => {
   return response.data;
 }
 
+export const getRound = async (sessionId, userId, roundId) => {
+  const response = await api.post(`/session/${sessionId}/round/${roundId}`, { user_id: userId });
+  return response.data;
+}
+
+export const submitGuess = async (sessionId, roundId, userId, guessedUserId) => {
+  const response = await api.post(`/session/${sessionId}/round/${roundId}/guess`, { user_id: userId, guessed_user_id: guessedUserId });
+  return response.data;
+}
+
 export default api;

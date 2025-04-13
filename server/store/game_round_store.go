@@ -46,6 +46,32 @@ func CreateGameRounds(sessionID string) error {
 	return nil
 }
 
+type Round struct {
+	RoundID     int    `json:"round_id"`
+	SessionID   string `json:"session_id"`
+	RoundNumber int    `json:"round_number"`
+	// We'll return the full Spotify track URL.
+	SongURL string `json:"song_url"`
+	Played  bool   `json:"played"`
+}
+
+func GetRound(roundID int, sessionID string) (*Round, error) {
+	query := `
+		SELECT gr.id, gr.session_id, gr.round_number, s.song_url, gr.played
+		FROM game_rounds gr
+		JOIN song_submissions s ON gr.song_submission_id = s.id
+		WHERE gr.id = $1 AND gr.session_id = $2
+	`
+	var round Round
+	err := db.QueryRow(query, roundID, sessionID).Scan(
+		&round.RoundID, &round.SessionID, &round.RoundNumber, &round.SongURL, &round.Played,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &round, nil
+}
+
 func CompleteRound(roundID int) error {
 	// begin a transaction to ensure consistency.
 	tx, err := db.Begin()
