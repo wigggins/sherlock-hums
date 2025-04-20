@@ -116,7 +116,7 @@ func StartRoundHandler(w http.ResponseWriter, r *http.Request) {
 	// broadcast the "round_started" event to all clients in this session.
 	ws.HubInstance.Broadcast(roundData, "round_started", sessionID)
 
-	startRoundTimer(sessionID, roundIDStr, 60*time.Second)
+	startRoundTimer(sessionID, roundData.RoundID, 60*time.Second)
 
 	resp := RoundStartedResponse{Message: "Round started successfully"}
 	w.Header().Set("Content-Type", "application/json")
@@ -128,19 +128,12 @@ type RoundStartedResponse struct {
 }
 
 // todo: just pass roundID as int here
-func startRoundTimer(sessionID, roundIDStr string, duration time.Duration) {
+func startRoundTimer(sessionID string, roundID int, duration time.Duration) {
 	// wait for the full duration
 	time.Sleep(duration)
 
-	// todo: remove
-	roundID, err := strconv.Atoi(roundIDStr)
-	if err != nil {
-		// meh, i guess fill this out later
-		return
-	}
-
 	// todo: maybe check to ensure round hasn't been completed yet
-	err = store.CompleteRound(roundID)
+	err := store.CompleteRound(roundID)
 	if err != nil {
 		return
 	}

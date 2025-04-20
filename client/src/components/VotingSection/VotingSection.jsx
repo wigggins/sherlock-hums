@@ -9,6 +9,7 @@ export const VotingSection = () => {
   const { currentUser } = useUser()
   const { players } = usePlayers();
   const handleVote = async (guessedUserId) => {
+    console.log('handleVote clicked')
     try {
       await submitGuess(sessionId, roundId, currentUser.id, guessedUserId);
       // update state to show we've selected this player as our vote
@@ -20,7 +21,7 @@ export const VotingSection = () => {
   return (
     <div>
       {players.map(player => (
-        <div onClick={() => handleVote(player.user_id)}>
+        <div className="vote-card" onClick={() => handleVote(player.user_id)}>
           <UserAvatar user={player} />
         </div>
       ))}

@@ -13,3 +13,7 @@
   color: #FEFEFE;
   margin: 20px;
 }
+
+.vote-card {
+  cursor: pointer;
+}
