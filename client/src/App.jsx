@@ -14,8 +14,7 @@ function App() {
     <>
     <UserProvider>
       <BrowserRouter>
-        <Routes>
-        
+        <Routes>  
           <Route path="/" element={<Home />} />
           <Route
             path="/session/:sessionId"
@@ -31,8 +30,7 @@ function App() {
             <Route path="lobby" element={<Lobby />} />
             <Route path="submission" element={<SongSubmission />} />
             <Route path="round/:roundId" element={<RoundGuess />} />
-          </Route>
-          
+          </Route>     
         </Routes>
       </BrowserRouter>
       </UserProvider>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 
 const initialUser = null;
+// id, sessionId, isHost
 
 const UserContext = createContext();
 

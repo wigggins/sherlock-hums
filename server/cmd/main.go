@@ -35,9 +35,8 @@ func main() {
 	// game round management
 	r.HandleFunc("/session/{sessionID}/start/submission", handlers.StartSubmissionHandler).Methods("POST")
 	r.HandleFunc("/session/{sessionID}/start/guessing", handlers.StartGuessingHandler).Methods("POST")
-	r.HandleFunc("/session/{sessionID}/round/{roundID}", handlers.GetRoundHandler).Methods("GET")
+	r.HandleFunc("/session/{sessionID}/round/{roundID}", handlers.StartRoundHandler).Methods("POST")
 	r.HandleFunc("/session/{sessionID}/round/{roundID}/guess", handlers.SubmitGuessHandler).Methods("POST")
-	r.HandleFunc("/session/{sessionID}/round/{roundID}/complete", handlers.CompleteRoundHandler).Methods("POST")
 
 	r.HandleFunc("/session/scores", handlers.GetScoresHandler).Methods("GET")
 

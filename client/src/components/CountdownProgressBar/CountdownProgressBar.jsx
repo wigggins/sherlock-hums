@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export const CountdownProgressBar = ({ duration = 60, onComplete }) => {
+export const CountdownProgressBar = ({ duration = 60 }) => {
   const [timeLeft, setTimeLeft] = useState(duration);
 
   useEffect(() => {
@@ -8,14 +8,13 @@ export const CountdownProgressBar = ({ duration = 60, onComplete }) => {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(interval);
-          if (onComplete) onComplete(); // fire callback on complete
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [duration, onComplete]);
+  }, [duration]);
 
   const percentage = (timeLeft / duration) * 100;
 

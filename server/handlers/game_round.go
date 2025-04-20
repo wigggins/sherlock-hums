@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/wigggins/sherlock-hums/server/store"
@@ -68,62 +70,88 @@ func StartGuessingHandler(w http.ResponseWriter, r *http.Request) {
 	ws.HubInstance.Broadcast(nil, "guessing_started", sessionID)
 }
 
-// TODO: think about 'current round' validation
-// prevent users from retrieving future rounds, etc
-func GetRoundHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	sessionID, ok := vars["sessionID"]
-	roundIDStr := vars["roundID"]
+// TODO: Change this to StartRoundHandler
+// initiated by the host via API call
+// sends out round details via websocket
 
+// StartRoundRequest is the payload from the client.
+type StartRoundRequest struct {
+	UserID int `json:"user_id"` // caller’s user ID
+}
+
+func StartRoundHandler(w http.ResponseWriter, r *http.Request) {
+	var req StartRoundRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	vars := mux.Vars(r)
+	sessionID := vars["sessionID"]
+	roundIDStr := vars["roundID"]
 	roundID, err := strconv.Atoi(roundIDStr)
 	if err != nil {
 		http.Error(w, "Invalid round ID", http.StatusBadRequest)
 		return
 	}
 
-	if !ok || sessionID == "" {
-		http.Error(w, "Session ID is required", http.StatusBadRequest)
+	// verify caller is the session host.
+	hostID, err := store.GetSessionHost(sessionID)
+	if err != nil {
+		http.Error(w, "Session not found", http.StatusNotFound)
+		return
+	}
+	if req.UserID != hostID {
+		http.Error(w, "Only the host may start a round", http.StatusForbidden)
 		return
 	}
 
-	round, err := store.GetRound(roundID, sessionID)
+	// fetch the round data to send to clients.
+	roundData, err := store.GetRoundByNumber(sessionID, roundID)
 	if err != nil {
-		http.Error(w, "Session ID is required", http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Error fetching round: %v", err), http.StatusInternalServerError)
+		return
 	}
 
+	// broadcast the "round_started" event to all clients in this session.
+	ws.HubInstance.Broadcast(roundData, "round_started", sessionID)
+
+	startRoundTimer(sessionID, roundIDStr, 60*time.Second)
+
+	resp := RoundStartedResponse{Message: "Round started successfully"}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(round)
+	json.NewEncoder(w).Encode(resp)
 }
 
-type RoundCompleteResponse struct {
+type RoundStartedResponse struct {
 	Message string `json:"message"`
 }
 
-// CompleteRoundHandler finalizes a round by calculating scores and marking it as played
-func CompleteRoundHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	sessionID := vars["sessionID"]
-	roundIDStr := vars["roundID"]
+// todo: just pass roundID as int here
+func startRoundTimer(sessionID, roundIDStr string, duration time.Duration) {
+	// wait for the full duration
+	time.Sleep(duration)
 
-	if sessionID == "" || roundIDStr == "" {
-		http.Error(w, "Session ID and Round ID are required", http.StatusBadRequest)
-		return
-	}
-
+	// todo: remove
 	roundID, err := strconv.Atoi(roundIDStr)
 	if err != nil {
-		http.Error(w, "Invalid Round ID", http.StatusBadRequest)
+		// meh, i guess fill this out later
 		return
 	}
 
-	// process round completion
+	// todo: maybe check to ensure round hasn't been completed yet
 	err = store.CompleteRound(roundID)
 	if err != nil {
-		http.Error(w, "Error completing round: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	resp := RoundCompleteResponse{Message: "Round completed and scores updated successfully"}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	// get voting results and tally scores
+	results, err := store.GetRoundResults(sessionID, roundID)
+	if err != nil {
+		ws.HubInstance.Broadcast(map[string]string{"error": err.Error()}, "round_complete_error", sessionID)
+		return
+	}
+
+	// Broadcast round completion and results over WebSocket.
+	ws.HubInstance.Broadcast(results, "round_completed", sessionID)
 }
