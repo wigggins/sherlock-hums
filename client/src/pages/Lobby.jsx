@@ -4,11 +4,13 @@ import { getPlayersBySession, startGameSubmission} from '../api'
 import { usePlayers } from '../hooks/usePlayers';
 import { UserAvatar } from "../components/UserAvatar/UserAvatar";
 import { useWebSocket } from '../hooks/useWebSocket';
+import { useUser } from '../context/UserContext';
 
 export const Lobby = () => {
   const { sessionId } = useParams();
   const { lastMessage } = useWebSocket();
   const { players, dispatch } = usePlayers();
+  const { currentUser } = useUser();
 
   useEffect(() => {
     getPlayersBySession(sessionId)
@@ -42,8 +44,7 @@ export const Lobby = () => {
         {players?.map((player) => (
           <UserAvatar key={player.user_id} user={player}>{player.username}</UserAvatar>
         ))}
-      {/* TODO: validate button only shows for host */}
-      <button onClick={handleStartGame}>Start Game</button>
+      { currentUser.isHost && <button onClick={handleStartGame}>Start Game</button> }
     </>
   )
 }

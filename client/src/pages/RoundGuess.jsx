@@ -5,6 +5,8 @@ import { useUser } from '../context/UserContext';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { CountdownProgressBar } from '../components/CountdownProgressBar/CountdownProgressBar';
 import { VotingSection } from '../components/VotingSection/VotingSection';
+import { SpotifyPlayer } from '../components/SpotifyPlayer/SpotifyPlayer';
+import { getSpotifyTrackId } from '../utils/getSpotifyTrackId';
 
 export const RoundGuess = () => {
   const { sessionID, roundID } = useParams();
@@ -66,15 +68,7 @@ export const RoundGuess = () => {
 
   return (
     <div>
-      <iframe 
-        style={{borderRadius: '12px'}} 
-        // TODO make dynamic, but lots of work tbd for that
-        src="https://open.spotify.com/embed/track/2TjngvHoJQIkI7BGoK04D2?theme=0" 
-        width="100%" height="352" 
-        frameBorder="0" 
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-        loading="lazy"></iframe>
-
+      <SpotifyPlayer trackId={getSpotifyTrackId(roundData.song_url)} />
       <CountdownProgressBar duration={60} />
       <VotingSection />
     </div>
