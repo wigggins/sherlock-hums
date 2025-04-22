@@ -27,10 +27,17 @@ func SubmitGuessHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Session ID and Round ID are required", http.StatusBadRequest)
 		return
 	}
-
+	// FIX HERE
 	roundID, err := strconv.Atoi(roundIDStr)
 	if err != nil {
 		http.Error(w, "Invalid Round ID", http.StatusBadRequest)
+		return
+	}
+
+	// Get Round by number
+	round, err := store.GetRoundByNumber(sessionID, roundID)
+	if err != nil {
+		http.Error(w, "Could not retrieve round by number", http.StatusBadRequest)
 		return
 	}
 
@@ -45,7 +52,7 @@ func SubmitGuessHandler(w http.ResponseWriter, r *http.Request) {
 	// this could be done by checking the user's session from the database.
 
 	// process the guess submission.
-	err = store.CreateGuess(roundID, req.UserID, req.GuessedUserID)
+	err = store.CreateGuess(round.RoundID, req.UserID, req.GuessedUserID)
 	if err != nil {
 		http.Error(w, "Error submitting guess: "+err.Error(), http.StatusInternalServerError)
 		return

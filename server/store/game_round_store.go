@@ -2,6 +2,7 @@ package store
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -94,12 +95,36 @@ func GetRoundByNumber(sessionID string, roundNumber int) (*Round, error) {
 }
 
 func CompleteRound(roundID int) error {
+	// check “played” flag first
+	var alreadyPlayed bool
+	err := db.QueryRow(
+		`SELECT played FROM game_rounds WHERE id = $1`,
+		roundID,
+	).Scan(&alreadyPlayed)
+	if err != nil {
+		log.Printf("[CompleteRound] ERROR checking played flag for round %d: %v\n", roundID, err)
+		return fmt.Errorf("checking played flag: %w", err)
+	}
+	if alreadyPlayed {
+		log.Printf("[CompleteRound] Round %d is already played—skipping scoring\n", roundID)
+		return nil
+	}
+
 	// begin a transaction to ensure consistency.
 	tx, err := db.Begin()
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 	defer tx.Rollback()
+
+	if _, err := tx.Exec(
+		`UPDATE game_rounds SET played = TRUE WHERE id = $1`,
+		roundID,
+	); err != nil {
+		log.Printf("[CompleteRound] ERROR marking round %d as played: %v\n", roundID, err)
+		return err
+	}
+	log.Printf("[CompleteRound] Round %d marked as played\n", roundID)
 
 	// query all guesses for this round that are correct.
 	query := `

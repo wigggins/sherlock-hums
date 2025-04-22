@@ -70,10 +70,6 @@ func StartGuessingHandler(w http.ResponseWriter, r *http.Request) {
 	ws.HubInstance.Broadcast(nil, "guessing_started", sessionID)
 }
 
-// TODO: Change this to StartRoundHandler
-// initiated by the host via API call
-// sends out round details via websocket
-
 // StartRoundRequest is the payload from the client.
 type StartRoundRequest struct {
 	UserID int `json:"user_id"` // caller’s user ID
@@ -116,7 +112,7 @@ func StartRoundHandler(w http.ResponseWriter, r *http.Request) {
 	// broadcast the "round_started" event to all clients in this session.
 	ws.HubInstance.Broadcast(roundData, "round_started", sessionID)
 
-	startRoundTimer(sessionID, roundData.RoundID, 60*time.Second)
+	go startRoundTimer(sessionID, roundData.RoundID, 60*time.Second)
 
 	resp := RoundStartedResponse{Message: "Round started successfully"}
 	w.Header().Set("Content-Type", "application/json")
@@ -127,7 +123,6 @@ type RoundStartedResponse struct {
 	Message string `json:"message"`
 }
 
-// todo: just pass roundID as int here
 func startRoundTimer(sessionID string, roundID int, duration time.Duration) {
 	// wait for the full duration
 	time.Sleep(duration)

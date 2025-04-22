@@ -25,12 +25,7 @@ export const SessionListener = () => {
         startRound(sessionId, currentUser.id, 1);
       }
     }
-
-    // round started? need to handle 
-    // if(lastMessage && lastMessage.event === '') {
-
-    // }
-  }, [lastMessage, sessionId, navigate]);
+  }, [lastMessage, sessionId]);
 
   return null;
 };
