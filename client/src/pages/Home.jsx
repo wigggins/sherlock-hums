@@ -36,7 +36,7 @@ export const Home = () => {
   return (
     <>
       <h1>Sherlock Hums</h1>
-      <div className="container">
+      <div className="container-split">
         <div className="half">
           <h2>Create Game</h2>
           <input

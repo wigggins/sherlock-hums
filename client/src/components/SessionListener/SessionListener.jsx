@@ -25,6 +25,11 @@ export const SessionListener = () => {
         startRound(sessionId, currentUser.id, 1);
       }
     }
+
+    if (lastMessage && lastMessage.event === 'round_started') {
+      console.log('round_started')
+      navigate(`/session/${sessionId}/round/${lastMessage.data.round_number}`);
+    }
   }, [lastMessage, sessionId]);
 
   return null;

@@ -7,9 +7,11 @@ import { CountdownProgressBar } from '../components/CountdownProgressBar/Countdo
 import { VotingSection } from '../components/VotingSection/VotingSection';
 import { SpotifyPlayer } from '../components/SpotifyPlayer/SpotifyPlayer';
 import { getSpotifyTrackId } from '../utils/getSpotifyTrackId';
+import { RoundResults } from '../components/RoundResults/RoundResults';
+import { startRound } from '../api';
 
 export const RoundGuess = () => {
-  const { sessionID, roundID } = useParams();
+  const { sessionId, roundId } = useParams();
   const { ws, lastMessage } = useWebSocket();
   const { players } = usePlayers();
   const { currentUser } = useUser();
@@ -58,6 +60,11 @@ export const RoundGuess = () => {
     return () => ws.removeEventListener('message', handleMessage);
   }, [ws]);
 
+  const handleNextRound = () => {
+    console.log(sessionId, currentUser.id, Number(roundId) + 1)
+    startRound(sessionId, currentUser.id, Number(roundId) + 1);
+  }
+
   if(!roundData) {
     return (
       <div>
@@ -69,8 +76,9 @@ export const RoundGuess = () => {
   return (
     <div>
       <SpotifyPlayer trackId={getSpotifyTrackId(roundData.song_url)} />
-      <CountdownProgressBar duration={60} />
-      <VotingSection />
+      { !votingClosed && <CountdownProgressBar duration={60} /> }
+      <VotingSection userVote={userVote} setUserVote={setUserVote} />
+      { results && <RoundResults results={results} handleNextRound={handleNextRound} isHost={currentUser.isHost} />}
     </div>
   )
 }

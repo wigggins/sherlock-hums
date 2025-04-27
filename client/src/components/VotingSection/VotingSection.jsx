@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import { submitGuess } from "../../api"
 import { usePlayers } from "../../hooks/usePlayers";
 import { UserAvatar } from "../UserAvatar/UserAvatar";
 import { useParams } from 'react-router';
 import { useUser } from '../../context/UserContext';
 
-export const VotingSection = () => {
+export const VotingSection = ({ userVote, setUserVote }) => {
   const { sessionId, roundId } = useParams();
   const { currentUser } = useUser()
   const { players } = usePlayers();
-  const [userVote, setUserVote] = useState(false);
 
   const handleVote = async (guessedUserId) => {
     console.log('handleVote clicked')
