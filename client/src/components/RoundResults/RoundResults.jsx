@@ -2,7 +2,7 @@ import React from 'react';
 import { usePlayers } from '../../hooks/usePlayers';
 import { avatarColors } from '../../utils/constants';
 
-export const RoundResults = ({ results, handleNextRound, isHost }) => {
+export const RoundResults = ({ results, handleNextRound, isHost, isGameComplete }) => {
   const { players } = usePlayers();
 
   // sort scores descending
@@ -15,8 +15,6 @@ export const RoundResults = ({ results, handleNextRound, isHost }) => {
     <div style={{ width: '100%', maxWidth: 600, margin: '0 auto' }}>
       {sorted.map((ps) => {
         // find player avatar color
-        console.log(ps.user_id)
-        console.log(players)
         const player = players.find((p) => p.user_id == ps.user_id);
         const barColor = avatarColors[player?.avatar_color] || '#4caf50';
 
@@ -58,7 +56,7 @@ export const RoundResults = ({ results, handleNextRound, isHost }) => {
         );
       })}
 
-      {isHost && (
+      {isHost && !isGameComplete && (
         <div style={{ textAlign: 'center', marginTop: 16 }}>
           <button onClick={handleNextRound}>Next Round</button>
         </div>

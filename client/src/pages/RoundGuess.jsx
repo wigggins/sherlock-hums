@@ -8,7 +8,7 @@ import { VotingSection } from '../components/VotingSection/VotingSection';
 import { SpotifyPlayer } from '../components/SpotifyPlayer/SpotifyPlayer';
 import { getSpotifyTrackId } from '../utils/getSpotifyTrackId';
 import { RoundResults } from '../components/RoundResults/RoundResults';
-import { startRound } from '../api';
+import { startRound, completeSession } from '../api';
 
 export const RoundGuess = () => {
   const { sessionId, roundId } = useParams();
@@ -65,6 +65,10 @@ export const RoundGuess = () => {
     startRound(sessionId, currentUser.id, Number(roundId) + 1);
   }
 
+  const handleCompleteGame = () => {
+    completeSession(sessionId, currentUser.id);
+  }
+
   if(!roundData) {
     return (
       <div>
@@ -78,7 +82,16 @@ export const RoundGuess = () => {
       <SpotifyPlayer trackId={getSpotifyTrackId(roundData.song_url)} />
       { !votingClosed && <CountdownProgressBar duration={60} /> }
       <VotingSection userVote={userVote} setUserVote={setUserVote} />
-      { results && <RoundResults results={results} handleNextRound={handleNextRound} isHost={currentUser.isHost} />}
+      { 
+        results && 
+        <RoundResults 
+          results={results} 
+          handleNextRound={handleNextRound}
+          isHost={currentUser.isHost} 
+          isGameComplete={results.game_complete} 
+        />
+      }
+      {currentUser.isHost && results.game_complete && <button onClick={handleCompleteGame}>Complete Game</button>}
     </div>
   )
 }

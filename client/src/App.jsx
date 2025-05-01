@@ -8,6 +8,7 @@ import { Lobby } from './pages/Lobby';
 import { SongSubmission } from './pages/SongSubmission';
 import './App.css'
 import { RoundGuess } from "./pages/RoundGuess";
+import { GameComplete } from "./pages/GameComplete";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="lobby" element={<Lobby />} />
             <Route path="submission" element={<SongSubmission />} />
             <Route path="round/:roundId" element={<RoundGuess />} />
+            <Route path="results" element={<GameComplete />} />
           </Route>     
         </Routes>
       </BrowserRouter>

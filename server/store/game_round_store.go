@@ -182,8 +182,9 @@ type PlayerScore struct {
 }
 
 type RoundResults struct {
-	CorrectUser User          `json:"correctUser"`
-	Scores      []PlayerScore `json:"scores"`
+	CorrectUser  User          `json:"correctUser"`
+	Scores       []PlayerScore `json:"scores"`
+	GameComplete bool          `json:"game_complete"`
 }
 
 func GetRoundResults(sessionID string, roundID int) (*RoundResults, error) {
@@ -227,4 +228,44 @@ func GetRoundResults(sessionID string, roundID int) (*RoundResults, error) {
 		CorrectUser: correctUser,
 		Scores:      scores,
 	}, nil
+}
+
+// used to check and see if it's the last round of the session
+func HasNextRound(sessionID string, currentRoundNumber int) (int, bool, error) {
+	log.Printf("[HasNextRound] called with sessionID=%q currentRoundNumber=%d\n",
+		sessionID, currentRoundNumber)
+
+	const q = `
+		SELECT COALESCE(MIN(gr.round_number), 0) AS next_round
+		FROM game_rounds gr
+		WHERE gr.session_id = $1
+			AND gr.round_number > $2
+	`
+	var nextRN int
+	if err := db.QueryRow(q, sessionID, currentRoundNumber).Scan(&nextRN); err != nil {
+		log.Printf("[HasNextRound] query error: %v\n", err)
+		return 0, false, err
+	}
+
+	log.Printf("[HasNextRound] query returned nextRN=%d\n", nextRN)
+	if nextRN == 0 {
+		log.Printf("[HasNextRound] no next round found for session %q\n", sessionID)
+		return 0, false, nil
+	}
+
+	log.Printf("[HasNextRound] next round is %d for session %q\n", nextRN, sessionID)
+	return nextRN, true, nil
+}
+
+// used as a validation to complete the session
+func AllRoundsPlayed(sessionID string) (bool, error) {
+	var c int
+	err := db.QueryRow(`
+			SELECT COUNT(*) FROM game_rounds 
+			WHERE session_id = $1 AND played = FALSE
+	`, sessionID).Scan(&c)
+	if err != nil {
+		return false, fmt.Errorf("checking unplayed rounds: %w", err)
+	}
+	return c == 0, nil
 }

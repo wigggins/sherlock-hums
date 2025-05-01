@@ -52,4 +52,9 @@ export const submitGuess = async (sessionId, roundId, userId, guessedUserId) => 
   return response.data;
 }
 
+export const completeSession = async (sessionId, userId) => {
+  const response = await api.post(`/session/${sessionId}/complete`, { user_id: userId });
+  return response.data;
+}
+
 export default api;

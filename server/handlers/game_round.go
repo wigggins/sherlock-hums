@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -112,7 +113,7 @@ func StartRoundHandler(w http.ResponseWriter, r *http.Request) {
 	// broadcast the "round_started" event to all clients in this session.
 	ws.HubInstance.Broadcast(roundData, "round_started", sessionID)
 
-	go startRoundTimer(sessionID, roundData.RoundID, 60*time.Second)
+	go startRoundTimer(sessionID, roundData.RoundID, roundData.RoundNumber, 60*time.Second)
 
 	resp := RoundStartedResponse{Message: "Round started successfully"}
 	w.Header().Set("Content-Type", "application/json")
@@ -123,7 +124,7 @@ type RoundStartedResponse struct {
 	Message string `json:"message"`
 }
 
-func startRoundTimer(sessionID string, roundID int, duration time.Duration) {
+func startRoundTimer(sessionID string, roundID int, roundNumber int, duration time.Duration) {
 	// wait for the full duration
 	time.Sleep(duration)
 
@@ -138,6 +139,19 @@ func startRoundTimer(sessionID string, roundID int, duration time.Duration) {
 	if err != nil {
 		ws.HubInstance.Broadcast(map[string]string{"error": err.Error()}, "round_complete_error", sessionID)
 		return
+	}
+
+	nextNum, hasNext, err := store.HasNextRound(sessionID, roundNumber)
+	if err != nil {
+		// handle error…
+		log.Printf("[Timer] HasNextRound error: %v\n", err)
+		return
+	}
+	log.Printf("[Timer] HasNextRound returned nextNum=%d, hasNext=%v\n", nextNum, hasNext)
+
+	if !hasNext {
+		log.Printf("[Timer] No more rounds—game complete for session %q\n", sessionID)
+		results.GameComplete = true
 	}
 
 	// Broadcast round completion and results over WebSocket.

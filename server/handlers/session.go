@@ -140,3 +140,53 @@ func GetPlayersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(players)
 }
+
+type CompleteGameRequest struct {
+	UserID int `json:"user_id"`
+}
+
+func CompleteGameHandler(w http.ResponseWriter, r *http.Request) {
+	var req CompleteGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	sessionID := mux.Vars(r)["sessionID"]
+
+	// only host may complete the game
+	hostID, err := store.GetSessionHost(sessionID)
+	if err != nil {
+		http.Error(w, "Error verifying session", http.StatusInternalServerError)
+		return
+	}
+	if req.UserID != hostID {
+		http.Error(w, "Only the host may complete the game", http.StatusForbidden)
+		return
+	}
+
+	// ensure every round has been played
+	allPlayed, err := store.AllRoundsPlayed(sessionID)
+	if err != nil {
+		http.Error(w, "Error checking rounds", http.StatusInternalServerError)
+		return
+	}
+	if !allPlayed {
+		http.Error(w, "Not all rounds have been played", http.StatusBadRequest)
+		return
+	}
+
+	// mark session COMPLETE
+	if err := store.UpdateSessionState(sessionID, "COMPLETE"); err != nil {
+		http.Error(w, "Error updating session state", http.StatusInternalServerError)
+		return
+	}
+	// todo: maybe broadcast final scores?
+	ws.HubInstance.Broadcast(nil, "final_results", sessionID)
+
+	// respond success for http call
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"status": "game_completed",
+	})
+}

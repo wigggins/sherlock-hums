@@ -26,10 +26,10 @@ func SubmitSongsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// validate the input: exactly 3 songs required
-	if len(req.Songs) != 3 {
-		http.Error(w, "Exactly 3 songs must be submitted", http.StatusBadRequest)
-		return
-	}
+	// if len(req.Songs) != 3 {
+	// 	http.Error(w, "Exactly 3 songs must be submitted", http.StatusBadRequest)
+	// 	return
+	// }
 
 	// get sessionID from URL path parameter
 	vars := mux.Vars(r)

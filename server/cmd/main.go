@@ -37,6 +37,7 @@ func main() {
 	r.HandleFunc("/session/{sessionID}/start/guessing", handlers.StartGuessingHandler).Methods("POST")
 	r.HandleFunc("/session/{sessionID}/round/{roundID}", handlers.StartRoundHandler).Methods("POST")
 	r.HandleFunc("/session/{sessionID}/round/{roundID}/guess", handlers.SubmitGuessHandler).Methods("POST")
+	r.HandleFunc("/session/{sessionID}/complete", handlers.CompleteGameHandler).Methods("POST")
 
 	r.HandleFunc("/session/scores", handlers.GetScoresHandler).Methods("GET")
 

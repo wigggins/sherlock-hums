@@ -30,6 +30,12 @@ export const SessionListener = () => {
       console.log('round_started')
       navigate(`/session/${sessionId}/round/${lastMessage.data.round_number}`);
     }
+
+    if (lastMessage && lastMessage.event === 'final_results') {
+      console.log('"final_results"')
+      // todo: update state from here for final scores?
+      navigate(`/session/${sessionId}/results`);
+    }
   }, [lastMessage, sessionId]);
 
   return null;
