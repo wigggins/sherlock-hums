@@ -17,3 +17,16 @@
 .vote-card {
   cursor: pointer;
 }
+
+.home-container {
+  padding: 2rem;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.half button {
+  width: 280px; /* let the button size to its content */
+  margin-top: 0.5rem;
+}

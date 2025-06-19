@@ -39,6 +39,7 @@ export const Home = () => {
       <div className="container-split">
         <div className="half">
           <h2>Create Game</h2>
+          <div className="input-group">
           <input
             type="text"
             className="text-input"
@@ -46,10 +47,13 @@ export const Home = () => {
             value={hostUsername}
             onChange={(e) => setHostUsername(e.target.value)}
           />
+          </div>
           <button onClick={handleCreateSession}>Create Game</button>
+          
         </div>
         <div className="half">
           <h2>Join Game</h2>
+          <div className="input-group">
           <input
             type="text"
             className="text-input"
@@ -57,6 +61,8 @@ export const Home = () => {
             value={joinSessionId}
             onChange={(e) => setJoinSessionId(e.target.value)}
           />
+          </div>
+          <div className="input-group">
           <input
             type="text"
             className="text-input"
@@ -64,6 +70,7 @@ export const Home = () => {
             value={joinUsername}
             onChange={(e) => setJoinUsername(e.target.value)}
           />
+          </div>
           <button onClick={handleJoinSession}>Join Game</button>
         </div>
       </div>
