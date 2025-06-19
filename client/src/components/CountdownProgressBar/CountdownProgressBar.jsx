@@ -17,40 +17,27 @@ export const CountdownProgressBar = ({ duration = 60 }) => {
   }, [duration]);
 
   const percentage = (timeLeft / duration) * 100;
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
 
   return (
-    <div style={styles.container}>
-      <div style={{ ...styles.bar, width: `${percentage}%` }}></div>
-      <div style={styles.label}>{timeLeft}s</div>
+    <div className="countdown-container">
+      <div className="countdown-text">
+        {timeLeft > 0 ? `${minutes}:${seconds.toString().padStart(2, '0')}` : "TIME'S UP!"}
+      </div>
+      
+      <div className="progress-bar">
+        <div 
+          className="progress-fill" 
+          style={{ width: `${percentage}%` }}
+        ></div>
+      </div>
+      
+      <div className="text-center mt-4 font-bold text-lg uppercase">
+        {timeLeft > 10 ? "🎵 LISTENING TIME" : timeLeft > 0 ? "⚡ FINAL SECONDS" : "⏰ VOTING CLOSED"}
+      </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    position: 'relative',
-    width: '100%',
-    height: '20px',
-    backgroundColor: '#ddd',
-    borderRadius: '4px',
-    overflow: 'hidden'
-  },
-  bar: {
-    position: 'absolute',
-    top: 0,
-    right: 0, // bar shrinks from right to left
-    height: '100%',
-    backgroundColor: '#4caf50',
-    transition: 'width 1s linear'
-  },
-  label: {
-    position: 'absolute',
-    width: '100%',
-    textAlign: 'center',
-    fontSize: '0.8rem',
-    lineHeight: '20px',
-    color: '#333'
-  }
 };
 
 export default CountdownProgressBar;

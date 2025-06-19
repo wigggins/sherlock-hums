@@ -71,27 +71,101 @@ export const RoundGuess = () => {
 
   if(!roundData) {
     return (
-      <div>
-        Waiting on round data...
+      <div className="page-container">
+        <div className="content-wrapper">
+          <div className="section-card text-center">
+            <div className="status-message">
+              <div className="text-4xl mb-4">🎵</div>
+              <p className="text-xl font-bold">Loading Next Round...</p>
+              <p className="mt-2">Getting the next track ready!</p>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div>
-      <SpotifyPlayer trackId={getSpotifyTrackId(roundData.song_url)} />
-      { !votingClosed && <CountdownProgressBar duration={60} /> }
-      <VotingSection userVote={userVote} setUserVote={setUserVote} />
-      { 
-        results && 
-        <RoundResults 
-          results={results} 
-          handleNextRound={handleNextRound}
-          isHost={currentUser.isHost} 
-          isGameComplete={results.game_complete} 
-        />
-      }
-      {currentUser.isHost && results.game_complete && <button onClick={handleCompleteGame}>Complete Game</button>}
+    <div className="page-container">
+      {/* Background decorations */}
+      <div className="bg-decoration">ROUND</div>
+      <div className="bg-decoration">GUESS</div>
+      <div className="bg-decoration">VOTE</div>
+      
+      <div className="content-wrapper">
+        <header className="text-center mb-8">
+          <h1 className="bounce-in text-4xl md:text-6xl">
+            ROUND #{roundId}
+          </h1>
+          <p className="text-xl font-bold mt-4 uppercase tracking-wide">
+            🎧 Who Chose This Track? 🎧
+          </p>
+        </header>
+
+        {/* Spotify Player Section */}
+        <div className="section-card mb-8">
+          <h3 className="text-black text-center mb-6">
+            🎵 NOW PLAYING
+          </h3>
+          <SpotifyPlayer trackId={getSpotifyTrackId(roundData.song_url)} />
+        </div>
+
+        {/* Timer Section */}
+        {!votingClosed && (
+          <CountdownProgressBar duration={60} />
+        )}
+
+        {/* Voting or Results Section */}
+        {results ? (
+          <>
+            <RoundResults 
+              results={results} 
+              handleNextRound={handleNextRound}
+              isHost={currentUser.isHost} 
+              isGameComplete={results.game_complete} 
+            />
+            
+            {/* Final Game Complete Button for Host */}
+            {currentUser.isHost && results.game_complete && (
+              <div className="text-center mt-8">
+                <button 
+                  onClick={handleCompleteGame}
+                  className="btn-secondary text-xl py-4 px-8"
+                >
+                  🏁 FINISH GAME
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <VotingSection userVote={userVote} setUserVote={setUserVote} />
+        )}
+
+        {/* Round Info */}
+        <div className="section-card mt-8">
+          <div className="text-center">
+            <h3 className="text-black mb-4">📊 Round Stats</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <div className="text-2xl font-black">#{roundId}</div>
+                <div className="text-sm uppercase font-bold">Round</div>
+              </div>
+              <div>
+                <div className="text-2xl font-black">{players?.length || 0}</div>
+                <div className="text-sm uppercase font-bold">Players</div>
+              </div>
+              <div>
+                <div className="text-2xl font-black">{userVote ? '✅' : '❓'}</div>
+                <div className="text-sm uppercase font-bold">Your Vote</div>
+              </div>
+              <div>
+                <div className="text-2xl font-black">{votingClosed ? '🔒' : '🔓'}</div>
+                <div className="text-sm uppercase font-bold">Status</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
